@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Robotics illustration">
+  <rect width="800" height="450" fill="#07152b"/>
+  <rect x="300" y="120" width="200" height="180" rx="24" fill="#123158" stroke="#57b2ff" stroke-width="3"/>
+  <circle cx="360" cy="200" r="28" fill="#14d0c8" fill-opacity="0.4"/>
+  <circle cx="440" cy="200" r="28" fill="#14d0c8" fill-opacity="0.4"/>
+  <rect x="360" y="250" width="80" height="18" rx="9" fill="#74f4a3"/>
+  <path d="M300 220h-90M500 220h90" stroke="#45a4ff" stroke-width="8" stroke-linecap="round"/>
+</svg>

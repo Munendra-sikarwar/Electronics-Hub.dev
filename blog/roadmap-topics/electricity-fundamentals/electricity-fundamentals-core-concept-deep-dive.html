@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electricity Fundamentals: Core Concept Deep Dive | Electronics Hub</title>
+  <meta name="description" content="Understand electricity fundamentals with a clear concept-first deep dive into charge, voltage, current, resistance, power, and safe measurement.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Electricity Fundamentals: Core Concept Deep Dive | Electronics Hub">
+  <meta property="og:description" content="A modern, beginner-friendly deep dive into the core electrical ideas behind every circuit.">
+  <meta property="og:url" content="https://electronicshub.github.io/blog/roadmap-topics/electricity-fundamentals/electricity-fundamentals-core-concept-deep-dive.html">
+  <meta property="og:image" content="https://electronicshub.github.io/assets/images/signal.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Electricity Fundamentals: Core Concept Deep Dive | Electronics Hub">
+  <meta name="twitter:description" content="A modern, beginner-friendly deep dive into the core electrical ideas behind every circuit.">
+  <meta name="twitter:image" content="https://electronicshub.github.io/assets/images/signal.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="../../assets/css/styles.css">
+  <link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body data-depth="3" data-page="learn">
+  <div class="progress-wrap"><div class="reading-progress" data-reading-progress></div></div>
+  <header class="site-header">
+    <div class="container nav-shell">
+      <a class="brand" data-route="home" aria-label="Electronics Hub home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Electronics Hub</span>
+      </a>
+      <button class="nav-toggle" data-nav-toggle aria-label="Open navigation">Menu</button>
+      <ul class="nav-links" data-menu>
+        <li><a class="nav-link" data-route="home" data-nav="home">Home</a></li>
+        <li><a class="nav-link" data-route="learn" data-nav="learn">Learn</a></li>
+        <li class="dropdown">
+          <a class="nav-link drop-toggle" href="#" data-nav="categories">Categories</a>
+          <div class="dropdown-menu">
+            <a data-route="catInside">Inside the Device</a>
+            <a data-route="catCuriosity">Curiosity Lab</a>
+            <a data-route="catBuild">Build It Yourself</a>
+            <a data-route="catFix">Fix & Troubleshoot</a>
+          </div>
+        </li>
+        <li><a class="nav-link" data-route="career" data-nav="career">Career</a></li>
+        <li><a class="nav-link" data-route="about" data-nav="about">About</a></li>
+        <li><a class="nav-link" data-route="contact" data-nav="contact">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <form data-site-search aria-label="Site search">
+          <input class="input small" type="search" placeholder="Search topics">
+        </form>
+        <button class="theme-toggle" data-theme-toggle aria-label="Toggle dark mode">Dark</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="reveal">
+          <div class="breadcrumb">
+            <a data-route="home">Home</a> /
+            <a data-route="learn">Learn</a> /
+            <a data-route="topicElectricity">Electricity Fundamentals</a> /
+            <span>Core Concept Deep Dive</span>
+          </div>
+          <span class="badge">Beginner Core Concept</span>
+          <h1>Electricity Fundamentals: Core Concept Deep Dive</h1>
+          <p>Build a strong conceptual foundation before jumping into formulas. This guide explains what electricity means in real circuits and how to reason about it confidently.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#introduction">Start Reading</a>
+            <a class="btn btn-secondary" data-route="topicElectricity">Back to Topic Page</a>
+          </div>
+        </div>
+        <div class="card reveal">
+          <img src="../../assets/images/signal.svg" alt="Electricity fundamentals deep dive visual" loading="lazy">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container blog-layout">
+        <article class="blog-content reveal">
+          <div class="card">
+            <div class="card-body">
+              <div class="blog-meta">
+                <span class="badge">Reading Time: 12 min</span>
+                <span class="badge">Prerequisite: None</span>
+                <span class="badge">Updated: May 2026</span>
+              </div>
+
+              <h2 id="introduction">Introduction</h2>
+              <p>Every electronic system, from a phone charger to a robotics controller, depends on the same core electrical ideas. If these ideas are clear, circuit analysis becomes easier, debugging becomes faster, and design choices become intentional instead of guesswork.</p>
+              <div class="blog-highlight">
+                <strong>Core mindset:</strong> electricity is not just numbers in equations. Think in terms of movement, pressure, opposition, and energy flow.
+              </div>
+
+              <h2 id="electric-charge">1. Electric Charge: The Starting Point</h2>
+              <p>Charge is the fundamental quantity that electrical systems move or store. In practical electronics, we focus on how charge moves through conductors and components, and how that movement creates useful behavior.</p>
+              <h3>Why it matters</h3>
+              <ul>
+                <li>Charge motion gives us current.</li>
+                <li>Charge separation gives us voltage.</li>
+                <li>Charge storage appears in capacitors and field effects.</li>
+              </ul>
+
+              <h2 id="voltage">2. Voltage: Electrical Pressure</h2>
+              <p>Voltage is the potential difference that pushes charge through a circuit path. It is always a difference between two points, not an absolute property of one node by itself.</p>
+              <h3>Practical intuition</h3>
+              <ul>
+                <li>Higher voltage can drive more current if resistance stays constant.</li>
+                <li>Voltage sources set the energy-per-charge budget in the circuit.</li>
+                <li>Most failures in beginner circuits come from wrong voltage levels.</li>
+              </ul>
+
+              <h2 id="current">3. Current: Flow Rate of Charge</h2>
+              <p>Current describes how quickly charge passes through a point. Components behave differently at different currents, so understanding current flow is key for safe and functional designs.</p>
+              <h3>Common beginner checks</h3>
+              <ul>
+                <li>Is the current path complete?</li>
+                <li>Is current limited where needed (for LEDs, sensors, IC pins)?</li>
+                <li>Are current ratings of wires/components respected?</li>
+              </ul>
+
+              <h2 id="resistance">4. Resistance: Opposition to Flow</h2>
+              <p>Resistance controls current and shapes voltage drops across components. Resistors are not just protective parts; they define behavior in dividers, bias networks, filters, and sensing circuits.</p>
+              <p>As resistance increases, current decreases for the same applied voltage. This simple relationship is the heart of many design and troubleshooting decisions.</p>
+
+              <h2 id="ohms-law">5. Ohm's Law: The Core Relationship</h2>
+              <p>Ohm's Law connects voltage, current, and resistance. It is the first equation most learners use, but the real value is conceptual: changing one variable affects the other two in predictable ways.</p>
+              <div class="blog-highlight">
+                <strong>Design habit:</strong> before calculating, estimate direction first. Ask what should increase or decrease, then verify with math.
+              </div>
+
+              <h2 id="electric-power">6. Electrical Power: Energy Usage Rate</h2>
+              <p>Power tells you how quickly electrical energy is being used, converted, or lost as heat. In real hardware, power is a reliability topic as much as a performance topic.</p>
+              <h3>Where power awareness matters</h3>
+              <ul>
+                <li>Resistor watt ratings</li>
+                <li>Battery runtime estimation</li>
+                <li>Regulator heat and thermal design</li>
+                <li>Efficiency in portable electronics</li>
+              </ul>
+
+              <h2 id="series-parallel">7. Series vs Parallel Thinking</h2>
+              <p>Many circuit questions become simple once you identify whether elements are in series or parallel. Series paths share current. Parallel branches share voltage.</p>
+              <ul>
+                <li>Series mistakes often create unintended voltage drops.</li>
+                <li>Parallel mistakes often overload sources.</li>
+              </ul>
+
+              <h2 id="measurement-safety">8. Measurement and Safety Basics</h2>
+              <p>Good measurements prevent damage. Always start with safe ranges, confirm reference ground, and place meters in the correct configuration (voltage in parallel, current in series).</p>
+              <h3>Quick safety routine</h3>
+              <ul>
+                <li>Power off before rewiring.</li>
+                <li>Check polarity before powering on.</li>
+                <li>Use current limiting when testing new circuits.</li>
+              </ul>
+
+              <h2 id="next-steps">9. What to Learn Next</h2>
+              <p>Now that your core model is strong, move to components and transistor behavior. That is where these fundamentals become practical circuit building blocks.</p>
+              <div class="hero-cta">
+                <a class="btn btn-secondary" data-route="topicComponents">Next: Basic Components</a>
+                <a class="btn btn-secondary" data-route="topicTransistors">Then: Transistors</a>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <aside class="sidebar toc-card reveal">
+          <h3 class="toc-title">Table of Contents</h3>
+          <ul class="toc-list">
+            <li><a href="#introduction">Introduction</a></li>
+            <li><a href="#electric-charge">Electric Charge</a></li>
+            <li><a href="#voltage">Voltage</a></li>
+            <li><a href="#current">Current</a></li>
+            <li><a href="#resistance">Resistance</a></li>
+            <li><a href="#ohms-law">Ohm's Law</a></li>
+            <li><a href="#electric-power">Electrical Power</a></li>
+            <li><a href="#series-parallel">Series vs Parallel</a></li>
+            <li><a href="#measurement-safety">Measurement and Safety</a></li>
+            <li><a href="#next-steps">What to Learn Next</a></li>
+          </ul>
+
+          <h3 style="margin-top:1.2rem;">Related Topics</h3>
+          <ul class="sidebar-list">
+            <li><a data-route="topicElectricity">Electricity Fundamentals Hub</a></li>
+            <li><a data-route="topicComponents">Basic Components</a></li>
+            <li><a data-route="topicSemiconductor">Semiconductor Basics</a></li>
+            <li><a data-route="topicTransistors">Transistors</a></li>
+            <li><a data-route="topicSignal">Signal Fundamentals</a></li>
+          </ul>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid grid-2">
+        <article class="card reveal">
+          <div class="card-body">
+            <h3>Continue Your Learning Path</h3>
+            <p>Build momentum by applying these concepts in small practical circuits, then move toward biasing, amplification, and digital switching.</p>
+            <a class="btn btn-secondary" data-route="learn">Open Full Learn Roadmap</a>
+          </div>
+        </article>
+        <article class="card reveal">
+          <div class="card-body">
+            <h3>Share This Article</h3>
+            <div class="share-row">
+              <button class="icon-btn" data-share="x" type="button">Share on X</button>
+              <button class="icon-btn" data-share="linkedin" type="button">Share on LinkedIn</button>
+              <button class="icon-btn" data-share="copy" type="button">Copy Link</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <h3>Electronics Hub</h3>
+        <p>Trusted, student-friendly electronics learning platform with practical projects and deep concept guides.</p>
+        <p class="small">Copyright <span data-year></span> Electronics Hub. All rights reserved.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul class="footer-links">
+          <li><a data-route="about">About</a></li>
+          <li><a data-route="contact">Contact</a></li>
+          <li><a data-route="learn">Learn</a></li>
+          <li><a data-route="categories">Categories</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <ul class="footer-links">
+          <li><a data-route="legalPrivacy">Privacy Policy</a></li>
+          <li><a data-route="legalDisclaimer">Disclaimer</a></li>
+          <li><a data-route="legalTerms">Terms & Conditions</a></li>
+          <li><a data-route="legalCookie">Cookie Policy</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <button class="to-top" data-to-top aria-label="Back to top">Top</button>
+  <script src="assets/js/main.js" defer></script>
+  <script src="../assets/js/main.js" defer></script>
+  <script src="../../assets/js/main.js" defer></script>
+  <script src="../../../assets/js/main.js" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Electricity Fundamentals: Core Concept Deep Dive",
+    "description": "Understand electricity fundamentals with a clear concept-first deep dive into charge, voltage, current, resistance, power, and safe measurement.",
+    "author": {
+      "@type": "Organization",
+      "name": "Electronics Hub"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Electronics Hub"
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://electronicshub.github.io/blog/roadmap-topics/electricity-fundamentals/electricity-fundamentals-core-concept-deep-dive.html"
+    },
+    "image": "https://electronicshub.github.io/assets/images/signal.svg",
+    "datePublished": "2026-05-15",
+    "dateModified": "2026-05-15"
+  }
+  </script>
+</body>
+</html>

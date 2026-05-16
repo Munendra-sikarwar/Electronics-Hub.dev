@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Electronics components collage">
+  <rect width="800" height="450" fill="#081a33"/>
+  <g fill="none" stroke="#66b8ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M110 140h70l20-20 40 40 40-40 20 20h70"/>
+    <path d="M110 240h90v-40h140v40h90"/>
+    <path d="M110 330h70l20-30h80l20 30h70"/>
+  </g>
+  <rect x="520" y="130" width="160" height="180" rx="14" fill="#112a4f" stroke="#14d0c8" stroke-width="4"/>
+  <circle cx="600" cy="220" r="26" fill="#74f4a3" fill-opacity="0.35"/>
+</svg>
