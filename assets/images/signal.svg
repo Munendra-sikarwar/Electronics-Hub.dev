@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Signal waveform">
-  <rect width="800" height="450" fill="#0b1934"/>
-  <g stroke="#183969" stroke-width="1">
-    <path d="M0 90h800M0 180h800M0 270h800M0 360h800"/>
-    <path d="M100 0v450M200 0v450M300 0v450M400 0v450M500 0v450M600 0v450M700 0v450"/>
-  </g>
-  <path d="M30 300h120v-150h120v150h120v-150h120v150h120v-150h120" stroke="#14d0c8" stroke-width="8" fill="none" stroke-linejoin="round"/>
-</svg>

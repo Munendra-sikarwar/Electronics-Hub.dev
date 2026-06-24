@@ -1,30 +1,13 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://electronicshub.github.io/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/categories/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/categories/inside-the-device/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/categories/curiosity-lab/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/categories/build-it-yourself/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/categories/fix-troubleshoot/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/career/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/about/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/contact/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/blog/roadmap-topics/electricity-fundamentals/electricity-fundamentals-core-concept-deep-dive.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/legal/privacy-policy/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/legal/disclaimer/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/legal/terms-conditions/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/legal/cookie-policy/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/electricity-fundamentals/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/basic-components/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/semiconductor/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/transistors/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/analog-circuit/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/digital-logic/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/microprocessors-microcontrollers/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/signal-fundamentals/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/communication-systems/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/automation-control/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/modern-electronics/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://electronicshub.github.io/learn/advanced-electronics/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>/</loc></url>
+  <url><loc>/learn.html</loc></url>
+  <url><loc>/projects.html</loc></url>
+  <url><loc>/workshop.html</loc></url>
+  <url><loc>/tools.html</loc></url>
+  <url><loc>/student-zone.html</loc></url>
+  <url><loc>/blog.html</loc></url>
+  <url><loc>/about.html</loc></url>
+  <url><loc>/contact.html</loc></url>
+  <url><loc>/copyright.html</loc></url>
 </urlset>

@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" role="img" aria-label="Repair bench">
-  <rect width="800" height="450" fill="#08172f"/>
-  <rect x="120" y="120" width="560" height="220" rx="20" fill="#153259" stroke="#53adff" stroke-width="3"/>
-  <path d="M200 270l70-70 40 40 90-90" stroke="#74f4a3" stroke-width="10" fill="none" stroke-linecap="round"/>
-  <rect x="480" y="175" width="110" height="110" rx="12" fill="#0c2140" stroke="#14d0c8"/>
-  <path d="M530 210l30 40M560 210l-30 40" stroke="#14d0c8" stroke-width="6" stroke-linecap="round"/>
-</svg>
