@@ -81,16 +81,25 @@
   function initialTheme() {
     const saved = localStorage.getItem("electronicsHub.theme");
     if (saved === "dark" || saved === "light") return saved;
-    return "dark";
+    return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   }
 
   function setTheme(theme, persist = false) {
     document.documentElement.dataset.theme = theme;
     if (persist) localStorage.setItem("electronicsHub.theme", theme);
+    let themeColor = document.querySelector('meta[name="theme-color"]');
+    if (!themeColor) {
+      themeColor = document.createElement("meta");
+      themeColor.name = "theme-color";
+      document.head.appendChild(themeColor);
+    }
+    themeColor.content = theme === "light" ? "#eef6f9" : "#17191c";
     const button = document.getElementById("theme-toggle");
     if (!button) return;
     const next = theme === "dark" ? "light" : "dark";
     button.setAttribute("aria-label", `Switch to ${next} mode`);
+    button.setAttribute("aria-pressed", String(theme === "light"));
+    button.title = `Switch to ${next} mode`;
     const label = button.querySelector(".theme-label");
     if (label) label.textContent = theme === "dark" ? "Light" : "Dark";
   }
@@ -340,35 +349,88 @@
     return { id, title, time: "18 min", level: 9, levelTitle: "Engineer's Workshop", difficulty: "Intermediate" };
   }
 
+  const lessonTopics = [
+    {
+      id: "opening-question",
+      title: "Opening question",
+      label: "Start",
+      content: `<div class="question-callout">How can a small hidden circuit change the way we communicate, travel, study, cook, and stay safe?</div><p class="lead lesson-topic-lead">This topic starts with the big idea: electronics are not only components on a board. They are systems that sense the world, make decisions, and create useful actions.</p><p>A phone wakes when you touch the screen. A washing machine measures water level. A traffic signal changes timing. A medical monitor watches a heartbeat. Each example looks different, but the pattern underneath is similar.</p><p>By the end of this lesson, you should be able to look at everyday technology and ask: What does it sense? What decision does it make? What output does it control?</p>`
+    },
+    {
+      id: "beginner-explanation",
+      title: "The beginner explanation",
+      label: "Concept",
+      content: `<h2>The beginner explanation</h2><p>Most electronic systems can be understood with three simple words: input, processing, and output. An input collects information, processing decides what that information means, and an output makes something happen.</p><p>A temperature sensor is an input. A microcontroller or circuit is the processing part. A fan, display, buzzer, motor, or light is the output.</p><p>This simple model helps you understand technology without getting lost in details. Before worrying about formulas, chips, or code, ask what information enters the system and what action leaves it.</p>`
+    },
+    {
+      id: "relationship",
+      title: "See the relationship",
+      label: "Visual",
+      content: `<h2>See the relationship</h2><p>The basic relationship in everyday electronics is a flow of information and energy: the system senses something, decides what it means, then acts.</p><div class="diagram" role="img" aria-label="Flow from sensing through decision to action"><div class="diagram-grid"></div><div class="diagram-flow"><div class="diagram-node">Sense<br>input</div><div class="diagram-line"></div><div class="diagram-node">Decide<br>logic</div><div class="diagram-line"></div><div class="diagram-node">Act<br>output</div></div></div><p>A smart light senses darkness, decides the room needs light, and turns on an LED. A phone senses touch, decides which command you selected, and updates the display.</p>`
+    },
+    {
+      id: "engineering-explanation",
+      title: "The engineering explanation",
+      label: "Theory",
+      content: `<h2>The engineering explanation</h2><p>Engineers describe electronic products as systems made of sensors, signal conditioning, computation or control logic, actuators, power delivery, and feedback.</p><p>The sensor converts a real-world condition into an electrical signal. The control circuit or processor interprets that signal. The output stage drives a load such as a speaker, motor, display, relay, or LED.</p><p>Good engineering means the system must work reliably under real conditions: low battery, electrical noise, changing temperature, user mistakes, and component tolerances.</p>`
+    },
+    {
+      id: "applications",
+      title: "Where it appears",
+      label: "Examples",
+      content: `<h2>Where it appears</h2><div class="application-grid"><div class="application"><strong>Smartphones</strong><p class="muted">Touch, motion, microphones, cameras, radios, processors, and displays work as one system.</p></div><div class="application"><strong>Home appliances</strong><p class="muted">Sensors and controllers manage temperature, water, timing, speed, and safety.</p></div><div class="application"><strong>Transportation</strong><p class="muted">Vehicles use electronics for sensing, lighting, braking, charging, navigation, and communication.</p></div></div><p>Once you notice the pattern, electronics stops feeling invisible. Everyday devices become understandable systems with inputs, decisions, outputs, and power.</p>`
+    },
+    {
+      id: "quick-check",
+      title: "Quick check",
+      label: "Practice",
+      content: `<h2>Quick check</h2><form class="quiz" id="lesson-quiz"><p><strong>In an automatic night light, what role does the light sensor play?</strong></p><label class="quiz-option"><input type="radio" name="answer" value="correct"> Input</label><label class="quiz-option"><input type="radio" name="answer" value="wrong"> Output</label><label class="quiz-option"><input type="radio" name="answer" value="wrong"> Power source</label><button class="button button-secondary" type="submit">Check answer</button><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div></form><p>The sensor provides information about the environment. The circuit uses that information to decide whether the lamp should turn on.</p>`
+    },
+    {
+      id: "key-takeaways",
+      title: "Key takeaways",
+      label: "Summary",
+      content: `<h2>Key takeaways</h2><ul class="takeaway-list"><li>Everyday electronics can be understood as input, processing, and output.</li><li>Sensors turn real-world conditions into electrical information.</li><li>Controllers or circuits decide what should happen next.</li><li>Outputs make the decision visible through light, motion, sound, heat, or data.</li></ul><p>Before moving on, choose one device near you and identify its input, processing, output, and power source.</p>`
+    }
+  ];
+
+  function lessonTopicNav(lessonId, currentTopicId) {
+    return lessonTopics.map((topic) => `<a class="lesson-side-link ${topic.id === currentTopicId ? "active" : ""}" href="lesson.html?id=${lessonId}&topic=${topic.id}" ${topic.id === currentTopicId ? 'aria-current="page"' : ""}><span>${topic.title}</span><small>${topic.label}</small></a>`).join("");
+  }
+
   function renderLesson() {
-    const id = new URLSearchParams(location.search).get("id") || "voltage-current-resistance";
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id") || "voltage-current-resistance";
     const lesson = lessonById(id);
-    document.title = `${lesson.title} | Electronics Hub`;
     state.lastLesson = lesson.id; saveState();
     const index = allLessons.findIndex((item) => item.id === lesson.id);
     const previous = allLessons[index > 0 ? index - 1 : 0];
     const next = allLessons[index >= 0 && index < allLessons.length - 1 ? index + 1 : Math.min(1, allLessons.length - 1)];
     const complete = state.completed.includes(lesson.id);
-    main.innerHTML = `<section class="page-hero"><div class="container"><nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="learn.html">Learn</a><span>/</span><span>Level ${lesson.level}</span></nav><span class="eyebrow">${lesson.levelTitle}</span><h1>${lesson.title}</h1><div class="lesson-meta"><span>${lesson.time} read</span><span>${lesson.difficulty}</span><span>Level ${lesson.level}</span></div></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
-      <section class="lesson-block"><div class="question-callout">Why can a tiny resistor determine whether an LED works for years or fails in seconds?</div></section>
-      <section class="lesson-block"><h2>The beginner explanation</h2><p>Voltage is the electrical push available to move charge. Current is the rate at which charge moves. Resistance limits that movement. They are connected: changing one affects the others.</p><p>Think of a circuit as a complete path. The source provides energy, components transform or control it, and current returns to the source. Nothing useful happens without that complete loop.</p></section>
-      <section class="lesson-block"><h2>See the relationship</h2><div class="diagram" role="img" aria-label="Flow from voltage through resistance to current"><div class="diagram-grid"></div><div class="diagram-flow"><div class="diagram-node">Voltage<br>push</div><div class="diagram-line"></div><div class="diagram-node">Resistance<br>control</div><div class="diagram-line"></div><div class="diagram-node">Current<br>flow</div></div></div></section>
-      <section class="lesson-block"><h2>The engineering explanation</h2><p>Ohm's law describes the relationship as V = I × R. In a resistive circuit, current rises when voltage rises and falls when resistance rises. Engineers use this relationship to choose component values, predict operating points, and identify measurements that do not make physical sense.</p><p>Real components also have limits. A resistor dissipates power as heat, described by P = V × I or I²R. Choosing resistance without checking power can produce the correct current but an unreliable design.</p></section>
-      <section class="lesson-block"><h2>Where it appears</h2><div class="application-grid"><div class="application"><strong>LED indicators</strong><p class="muted">A resistor keeps current below the LED's safe limit.</p></div><div class="application"><strong>Sensor inputs</strong><p class="muted">Resistors translate changing resistance into measurable voltage.</p></div><div class="application"><strong>Power systems</strong><p class="muted">Voltage drop and heat reveal losses in wires and connections.</p></div></div></section>
-      <section class="lesson-block"><h2>Quick check</h2><form class="quiz" id="lesson-quiz"><p><strong>A 10 V source is connected across a 1 kΩ resistor. What current flows?</strong></p><label class="quiz-option"><input type="radio" name="answer" value="wrong"> 1 mA</label><label class="quiz-option"><input type="radio" name="answer" value="correct"> 10 mA</label><label class="quiz-option"><input type="radio" name="answer" value="wrong"> 100 mA</label><button class="button button-secondary" type="submit">Check answer</button><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div></form></section>
-      <section class="lesson-block"><h2>Key takeaways</h2><ul class="takeaway-list"><li>Voltage provides electrical potential; current describes charge flow.</li><li>Resistance limits current and creates predictable voltage drops.</li><li>Ohm's law links all three quantities: V = I × R.</li><li>Always check power dissipation as well as resistance.</li></ul></section>
-      <nav class="lesson-nav" aria-label="Lesson navigation"><a href="lesson.html?id=${previous.id}"><span class="tiny">Previous</span><strong style="display:block">${previous.title}</strong></a><a href="lesson.html?id=${next.id}"><span class="tiny">Next</span><strong style="display:block">${next.title}</strong></a></nav>
-      </article><aside class="lesson-aside"><div class="panel sticky-progress"><span class="stat-label">Lesson progress</span><div class="progress-ring" style="--progress:${complete ? 360 : 72}deg;margin:18px auto"><strong>${complete ? 100 : 20}%</strong><span>complete</span></div><button class="button ${complete ? "button-secondary" : "button-primary"}" id="complete-lesson" ${complete ? "disabled" : ""}>${complete ? "Lesson completed" : "Mark lesson complete"}</button><a class="button" href="learn.html" style="width:100%;margin-top:10px">Back to roadmap</a></div></aside></div></section>`;
+    const requestedTopic = params.get("topic") || lessonTopics[0].id;
+    const topicIndex = Math.max(0, lessonTopics.findIndex((topic) => topic.id === requestedTopic));
+    const topic = lessonTopics[topicIndex];
+    const previousTopic = lessonTopics[topicIndex - 1];
+    const nextTopic = lessonTopics[topicIndex + 1];
+    document.title = `${topic.title} | ${lesson.title} | Electronics Hub`;
+    const topicNav = lessonTopicNav(lesson.id, topic.id);
+    main.innerHTML = `<section class="page-hero"><div class="container"><nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="learn.html">Learn</a><span>/</span><a href="lesson.html?id=${lesson.id}">${lesson.title}</a><span>/</span><span>${topic.title}</span></nav><span class="eyebrow">${lesson.levelTitle}</span><h1>${topic.title}</h1><div class="lesson-meta"><span>${lesson.title}</span><span>${lesson.difficulty}</span><span>Level ${lesson.level}</span></div></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
+      <section class="lesson-block lesson-topic-page">${topic.content}</section>
+      <nav class="lesson-nav" aria-label="Topic navigation">${previousTopic ? `<a href="lesson.html?id=${lesson.id}&topic=${previousTopic.id}"><span class="tiny">Previous topic</span><strong style="display:block">${previousTopic.title}</strong></a>` : `<a href="lesson.html?id=${previous.id}"><span class="tiny">Previous lesson</span><strong style="display:block">${previous.title}</strong></a>`}${nextTopic ? `<a href="lesson.html?id=${lesson.id}&topic=${nextTopic.id}"><span class="tiny">Next topic</span><strong style="display:block">${nextTopic.title}</strong></a>` : `<a href="lesson.html?id=${next.id}"><span class="tiny">Next lesson</span><strong style="display:block">${next.title}</strong></a>`}</nav>
+      </article><aside class="lesson-aside"><div class="lesson-sidebar"><nav class="panel lesson-course-nav" aria-label="Lesson topics"><div class="lesson-side-head"><span class="stat-label">On this lesson</span><a href="learn.html">Roadmap</a></div><div class="lesson-side-lessons">${topicNav}</div></nav><div class="panel sticky-progress"><span class="stat-label">Lesson progress</span><div class="progress-ring" style="--progress:${complete ? 360 : 72}deg;margin:18px auto"><strong>${complete ? 100 : 20}%</strong><span>complete</span></div><button class="button ${complete ? "button-secondary" : "button-primary"}" id="complete-lesson" ${complete ? "disabled" : ""}>${complete ? "Lesson completed" : "Mark lesson complete"}</button></div></div></aside></div></section>`;
     bindLesson(lesson);
   }
 
   function bindLesson(lesson) {
-    document.getElementById("lesson-quiz").addEventListener("submit", (event) => {
-      event.preventDefault(); const selected = document.querySelector('input[name="answer"]:checked'); const feedback = document.getElementById("quiz-feedback");
-      if (!selected) { feedback.textContent = "Choose an answer first."; feedback.style.color = "var(--warning)"; return; }
-      if (selected.value === "correct") { feedback.textContent = "Correct. I = V ÷ R = 10 V ÷ 1000 Ω = 0.01 A = 10 mA."; feedback.style.color = "var(--secondary)"; if (!state.quizWins.includes(lesson.id)) { state.quizWins.push(lesson.id); saveState(); showToast("Achievement unlocked: Quiz Ready"); } }
-      else { feedback.textContent = "Not quite. Convert the result from amperes to milliamperes and try again."; feedback.style.color = "var(--danger)"; }
-    });
+    const quiz = document.getElementById("lesson-quiz");
+    if (quiz) {
+      quiz.addEventListener("submit", (event) => {
+        event.preventDefault(); const selected = document.querySelector('input[name="answer"]:checked'); const feedback = document.getElementById("quiz-feedback");
+        if (!selected) { feedback.textContent = "Choose an answer first."; feedback.style.color = "var(--warning)"; return; }
+        if (selected.value === "correct") { feedback.textContent = "Correct. The light sensor is the input because it detects the environment and sends information to the circuit."; feedback.style.color = "var(--secondary)"; if (!state.quizWins.includes(lesson.id)) { state.quizWins.push(lesson.id); saveState(); showToast("Achievement unlocked: Quiz Ready"); } }
+        else { feedback.textContent = "Not quite. The output is what the system controls, like the lamp or LED. The sensor is the input."; feedback.style.color = "var(--danger)"; }
+      });
+    }
     const button = document.getElementById("complete-lesson");
     button.addEventListener("click", () => {
       if (!state.completed.includes(lesson.id)) state.completed.push(lesson.id);
