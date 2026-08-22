@@ -1,7 +1,7 @@
 window.EH_DATA = {
   levels: [
-    { id: 0, title: "Discover Technology", difficulty: "Starter", time: "2 hours", count: 6, description: "See how electronic systems sense, decide, and act in the world.", lessons: [
-      ["how-electronics-shape-life", "How Electronics Shape Everyday Life", "8 min"],
+    { id: 0, title: "Embedded Systems", difficulty: "Starter", time: "2 hours", count: 6, description: "See how electronic systems sense, decide, and act in the world.", lessons: [
+      ["Introduction-to-Embedded-Systems", "Introduction to Embedded Systems", "8 min"],
       ["inside-an-electronic-system", "Inside an Electronic System", "10 min"],
       ["signals-sensors-output", "Signals, Sensors, and Outputs", "12 min"]
     ]},
