@@ -10,9 +10,8 @@ window.EH_DATA = {
       ["RTOS", "RTOS", "10 min"],
       ["HARDWARE-MODELING", "HARDWARE MODELING", "10 min"],
       ["EMBEDDED-LINUX", "EMBEDDED LINUX", "10 min"],
-      ["EMBEDDED-NETWORKING", "EMBEDDED NETWORKING", "10 min"],
-      ["Arduino", "Ardunino", "10 min"],
-      ["Arduino", "Ardunino", "10 min"],
+      ["EMBEDDED-NETWORKING", "EMBEDDED NETWORKING", "10 min"]
+      
     ]},
     { id: 1, title: "Electricity Fundamentals", difficulty: "Beginner", time: "5 hours", count: 10, description: "Build intuition for charge, voltage, current, resistance, energy, and power.", lessons: [
       ["voltage-current-resistance", "Voltage, Current, and Resistance", "14 min"],
