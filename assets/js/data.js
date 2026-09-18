@@ -1,9 +1,18 @@
 window.EH_DATA = {
   levels: [
-    { id: 0, title: "Embedded Systems", difficulty: "Starter", time: "2 hours", count: 6, description: "See how electronic systems sense, decide, and act in the world.", lessons: [
-      ["Introduction-to-Embedded-Systems", "Introduction to Embedded Systems", "8 min"],
-      ["inside-an-electronic-system", "Inside an Electronic System", "10 min"],
-      ["signals-sensors-output", "Signals, Sensors, and Outputs", "12 min"]
+    { id: 0, title: "Embedded Systems", difficulty: "Moderate", time: "2 Months", count: 10, description: "See how electronic systems sense, decide, and act in the world.", lessons: [
+      ["C-PROGRAMMING", "C PROGRAMMING", "8 min"],
+      ["ARDUINO", "ARDUINO", "10 min"],
+      ["COMPUTER-ARCHITECTURE", "COMPUTER ARCHITECTURE", "12 min"],
+      [" STM32", " STM32", "10 min"],
+      ["COMMUNICATION-PROTOCOLS", "COMMUNICATION PROTOCOLS", "10 min"],
+      ["EMBEDDED-DEBUGGING", "EMBEDDED DEBUGGING", "10 min"],
+      ["RTOS", "RTOS", "10 min"],
+      ["HARDWARE-MODELING", "HARDWARE MODELING", "10 min"],
+      ["EMBEDDED-LINUX", "EMBEDDED LINUX", "10 min"],
+      ["EMBEDDED-NETWORKING", "EMBEDDED NETWORKING", "10 min"],
+      ["Arduino", "Ardunino", "10 min"],
+      ["Arduino", "Ardunino", "10 min"],
     ]},
     { id: 1, title: "Electricity Fundamentals", difficulty: "Beginner", time: "5 hours", count: 10, description: "Build intuition for charge, voltage, current, resistance, energy, and power.", lessons: [
       ["voltage-current-resistance", "Voltage, Current, and Resistance", "14 min"],
