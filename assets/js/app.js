@@ -201,12 +201,10 @@
   }
 
   function renderLearn() {
-    main.innerHTML = `<section class="page-hero"><div class="container"><span class="eyebrow">Your learning console</span><h1>Electronics Roadmap</h1><p class="lead">Move from curiosity to independent engineering through eleven connected levels.</p></div></section>
-      <section class="section-tight"><div class="container">${dashboardMarkup()}</div></section>
-      <section class="section"><div class="container"><div class="section-heading"><span class="eyebrow">Level by level</span><h2>Your complete path.</h2></div><div class="level-list">${data.levels.map((level) => {
-        const lp = levelProgress(level);
-        return `<details class="level-item" id="level-${level.id}" ${level.id === currentLevel().id ? "open" : ""}><summary class="level-summary"><div class="level-main"><span class="level-number">${level.id}</span><div><h3 class="level-title">${level.title}</h3><p class="level-description">${level.description}</p><div class="level-meta" style="margin-top:9px"><span>${level.difficulty}</span><span>${level.time}</span><span>${level.count} lessons</span></div></div></div><div class="level-progress"><div class="cluster" style="justify-content:space-between"><span class="tiny">Progress</span><strong>${lp}%</strong></div><div class="meter" style="margin-top:7px"><span style="width:${lp}%"></span></div></div></summary><div class="lesson-list">${level.lessons.map((lesson) => `<a class="lesson-row ${state.completed.includes(lesson[0]) ? "completed" : ""}" href="lesson.html?id=${lesson[0]}"><span class="lesson-title">${lesson[1]}</span><span class="tiny">${lesson[2]}</span></a>`).join("")}<div class="lesson-row"><span class="muted">Plus ${Math.max(level.count - level.lessons.length, 0)} guided lessons in this level</span><span class="tiny">Curriculum</span></div></div></details>`;
-      }).join("")}</div></div></section>`;
+    const selectedChapter = location.hash.replace("#level-", "");
+    const openChapterId = data.levels.some((level) => String(level.id) === selectedChapter) ? Number(selectedChapter) : currentLevel().id;
+    main.innerHTML = `<section class="page-hero learning-hero minimal-learning-hero"><div class="container"><h1>Start Learning</h1></div></section>
+      <section class="section-tight learning-chapters minimal-learning"><div class="container"><div class="level-list minimal-level-list">${data.levels.map((level) => `<details class="level-item course-group" id="level-${level.id}" ${level.id === openChapterId ? "open" : ""}><summary class="level-summary"><h2 class="level-title">${level.title}</h2></summary><div class="lesson-list" aria-label="${level.title} topics">${level.lessons.map((lesson) => `<a class="lesson-row ${state.completed.includes(lesson[0]) ? "completed" : ""}" href="${courseStartHref(lesson[0])}"><span class="lesson-title">${lesson[1]}</span></a>`).join("")}</div></details>`).join("")}</div></div></section>`;
   }
 
   function renderProjects() {
@@ -396,8 +394,89 @@
     }
   ];
 
-  function lessonTopicNav(lessonId, currentTopicId) {
-    return lessonTopics.map((topic) => `<a class="lesson-side-link ${topic.id === currentTopicId ? "active" : ""}" href="lesson.html?id=${lessonId}&topic=${topic.id}" ${topic.id === currentTopicId ? 'aria-current="page"' : ""}><span>${topic.title}</span><small>${topic.label}</small></a>`).join("");
+  const courseCurricula = {
+    "C-PROGRAMMING": [
+      {
+        title: "C Basics",
+        topics: [
+          { id: "what-is-c", title: "What is C?", label: "Start", content: `<div class="question-callout">How can a small set of instructions control hardware, from a blinking LED to an entire embedded system?</div><p class="lead">C is a fast, widely used programming language that gives you direct control over memory and hardware. That is why it is a core language for embedded systems.</p><p>A C program is a precise list of instructions. You write the instructions, compile them into machine code, and the computer follows them step by step.</p><p>As you learn C, focus on what each line stores, changes, checks, or sends to the hardware.</p>` },
+          { id: "first-program", title: "Your first C program", label: "Build", content: `<h2>Your first C program</h2><p>Every C program starts at <code>main</code>. It is the function the computer runs first.</p><p><code>int main(void) { return 0; }</code></p><p>The braces contain the instructions. A semicolon finishes an instruction. The <code>return 0</code> tells the operating system the program finished successfully.</p><p>Write a small program, compile it, and change one line at a time. That feedback loop is the fastest way to build confidence.</p>` },
+          { id: "compile-run", title: "Compile and run", label: "Workflow", content: `<h2>Compile and run</h2><p>A compiler translates the C source file you write into instructions your computer or microcontroller can execute.</p><p>The usual cycle is simple: write the source file, compile it, read any errors, fix one issue, then run the program again.</p><p>Compiler errors are useful clues. Read the first error first—later errors are often caused by the same earlier mistake.</p>` }
+        ]
+      },
+      {
+        title: "Variables and Data Types",
+        topics: [
+          { id: "variables", title: "Variables", label: "Concept", content: `<div class="question-callout">How does a program remember a sensor reading, a counter value, or whether an LED is on?</div><h2>Variables</h2><p>A variable is a named place in memory that stores a value your program can use and change.</p><p><code>int ledState = 0;</code> creates a variable named <code>ledState</code> and gives it the initial value <code>0</code>. Later, your program can set it to <code>1</code> when the LED should turn on.</p><p>Choose names that explain the value: <code>temperatureC</code> is clearer than <code>x</code>. Good names make programs easier to test and debug.</p>` },
+          { id: "data-types", title: "Data types", label: "Concept", content: `<h2>Data types</h2><p>A data type tells C what kind of value a variable stores and how much memory it needs.</p><div class="application-grid"><div class="application"><strong><code>int</code></strong><p class="muted">Whole numbers, such as a button press count.</p></div><div class="application"><strong><code>float</code></strong><p class="muted">Decimal values, such as a measured voltage.</p></div><div class="application"><strong><code>char</code></strong><p class="muted">A single character, such as a command received over serial communication.</p></div></div><p>Select a type that fits the data and its expected range. This matters especially on microcontrollers with limited memory.</p>` },
+          { id: "operators", title: "Operators and expressions", label: "Practice", content: `<h2>Operators and expressions</h2><p>Operators let you calculate and compare values. C uses <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code> for arithmetic, and comparison operators such as <code>==</code> and <code>&gt;</code> for decisions.</p><p><code>int nextCount = count + 1;</code> is an expression: it reads the current value, adds one, and stores the result.</p><p>Keep expressions readable. Split a complicated calculation into named variables when you need to check it.</p>` }
+        ]
+      },
+      {
+        title: "Decisions and Repetition",
+        topics: [
+          { id: "if-else", title: "if and else", label: "Control", content: `<h2>if and else</h2><p>Use <code>if</code> when a program must choose an action based on a condition.</p><p><code>if (temperatureC &gt; 30) { fanOn = 1; } else { fanOn = 0; }</code></p><p>The condition is either true or false. This is how software reacts to a button, threshold, error, or sensor value.</p>` },
+          { id: "loops", title: "Loops", label: "Control", content: `<h2>Loops</h2><p>Loops repeat instructions. A <code>for</code> loop is useful when you know how many times to repeat, while a <code>while</code> loop continues until a condition changes.</p><p>In embedded work, a main loop often reads inputs, makes a decision, updates outputs, and then repeats.</p><p>Always make sure a loop has a clear stopping condition when it is not intended to run forever.</p>` },
+          { id: "functions", title: "Functions", label: "Structure", content: `<h2>Functions</h2><p>A function groups one job under a meaningful name. Instead of repeating the same code, define it once and call it whenever you need it.</p><p><code>void turnLedOn(void)</code> describes a function that performs an action and returns no value.</p><p>Small functions make a program easier to read, test, and reuse in future projects.</p>` }
+        ]
+      },
+      {
+        title: "Working with Collections",
+        topics: [
+          { id: "arrays", title: "Arrays", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
+          { id: "strings", title: "Strings", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
+          { id: "pointers", title: "Pointers", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
+        ]
+      }
+    ]
+  };
+
+  function createCourseTopic(id, title, label, courseTitle, explanation) {
+    return { id, title, label, content: `<div class="question-callout">${explanation}</div><h2>${title}</h2><p class="lead">This topic is part of ${courseTitle}. Focus on the idea first, then connect it to a real circuit, system, or project.</p><p>Work through one small example and describe what changes, what stays constant, and how you would verify the result.</p><p>Keep a short note of the key terms and one question you want to test in practice.</p>` };
+  }
+
+  function defaultCourseChapters(lesson) {
+    const courseTitle = lesson.title;
+    return [
+      { title: "Foundations", topics: [
+        createCourseTopic("introduction", `Introduction to ${courseTitle}`, "Start", courseTitle, `What problem does ${courseTitle} solve, and where is it used?`),
+        createCourseTopic("core-ideas", "Core ideas", "Concept", courseTitle, `Which basic ideas make ${courseTitle} work?`),
+        createCourseTopic("essential-tools", "Essential tools", "Setup", courseTitle, `What tools, parts, or software do you need before you begin?`)
+      ] },
+      { title: "Building Blocks", topics: [
+        createCourseTopic("main-parts", "Main parts", "Concept", courseTitle, `Which parts make up a typical ${courseTitle} system?`),
+        createCourseTopic("how-it-works", "How it works", "Theory", courseTitle, `How do the important parts work together?`),
+        createCourseTopic("common-patterns", "Common patterns", "Practice", courseTitle, `Which recurring patterns help you recognize ${courseTitle} in practice?`)
+      ] },
+      { title: "Using the Skill", topics: [
+        createCourseTopic("first-example", "Your first example", "Build", courseTitle, `What is the smallest useful example you can build or test?`),
+        createCourseTopic("measure-and-debug", "Measure and debug", "Practice", courseTitle, `How can you check whether your ${courseTitle} work is behaving correctly?`),
+        createCourseTopic("real-world-use", "Real-world use", "Examples", courseTitle, `Where does ${courseTitle} appear in real engineering systems?`)
+      ] },
+      { title: "Next Steps", topics: [
+        createCourseTopic("common-mistakes", "Common mistakes", "Troubleshoot", courseTitle, `Which mistakes should you look for first when something does not work?`),
+        createCourseTopic("mini-challenge", "Mini challenge", "Practice", courseTitle, `How can you apply ${courseTitle} in a small, focused challenge?`),
+        createCourseTopic("key-takeaways", "Key takeaways", "Summary", courseTitle, `What are the most useful ideas to carry into the next course?`)
+      ] }
+    ];
+  }
+
+  function courseChapters(lesson) {
+    return courseCurricula[lesson.id] || defaultCourseChapters(lesson);
+  }
+
+  function courseTopicHref(lessonId, chapterIndex, topicId) {
+    return `lesson.html?id=${encodeURIComponent(lessonId)}&chapter=${chapterIndex}&topic=${encodeURIComponent(topicId)}`;
+  }
+
+  function courseStartHref(lessonId) {
+    const courseLesson = lessonById(lessonId);
+    const firstTopic = courseChapters(courseLesson)[0].topics[0];
+    return courseTopicHref(courseLesson.id, 0, firstTopic.id);
+  }
+
+  function lessonChapterNav(lesson, chapters, currentChapterIndex, currentTopicId) {
+    return chapters.map((chapter, chapterIndex) => `<details class="lesson-chapter" ${chapterIndex === currentChapterIndex ? "open" : ""}><summary class="lesson-chapter-summary"><strong>${chapter.title}</strong></summary><div class="lesson-chapter-topics">${chapter.topics.map((topic) => `<a class="lesson-side-link ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? "active" : ""}" href="${courseTopicHref(lesson.id, chapterIndex, topic.id)}" ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? 'aria-current="page"' : ""}><span>${topic.title}</span></a>`).join("")}</div></details>`).join("");
   }
 
   function renderLesson() {
@@ -408,18 +487,23 @@
     const index = allLessons.findIndex((item) => item.id === lesson.id);
     const previous = allLessons[index > 0 ? index - 1 : 0];
     const next = allLessons[index >= 0 && index < allLessons.length - 1 ? index + 1 : Math.min(1, allLessons.length - 1)];
-    const complete = state.completed.includes(lesson.id);
-    const requestedTopic = params.get("topic") || lessonTopics[0].id;
-    const topicIndex = Math.max(0, lessonTopics.findIndex((topic) => topic.id === requestedTopic));
-    const topic = lessonTopics[topicIndex];
-    const previousTopic = lessonTopics[topicIndex - 1];
-    const nextTopic = lessonTopics[topicIndex + 1];
+    const chapters = courseChapters(lesson);
+    const requestedChapter = Number(params.get("chapter"));
+    const chapterIndex = Number.isInteger(requestedChapter) && chapters[requestedChapter] ? requestedChapter : 0;
+    const chapter = chapters[chapterIndex];
+    const requestedTopic = params.get("topic") || chapter.topics[0].id;
+    const topicIndex = Math.max(0, chapter.topics.findIndex((topic) => topic.id === requestedTopic));
+    const topic = chapter.topics[topicIndex];
+    const courseTopics = chapters.flatMap((courseChapter, courseChapterIndex) => courseChapter.topics.map((courseTopic, courseTopicIndex) => ({ chapterIndex: courseChapterIndex, topicIndex: courseTopicIndex, chapter: courseChapter, topic: courseTopic })));
+    const courseTopicIndex = courseTopics.findIndex((courseTopic) => courseTopic.chapterIndex === chapterIndex && courseTopic.topicIndex === topicIndex);
+    const previousTopic = courseTopics[courseTopicIndex - 1];
+    const nextTopic = courseTopics[courseTopicIndex + 1];
     document.title = `${topic.title} | ${lesson.title} | Electronics Hub`;
-    const topicNav = lessonTopicNav(lesson.id, topic.id);
-    main.innerHTML = `<section class="page-hero"><div class="container"><nav class="breadcrumb"><a href="index.html">Home</a><span>/</span><a href="learn.html">Learn</a><span>/</span><a href="lesson.html?id=${lesson.id}">${lesson.title}</a><span>/</span><span>${topic.title}</span></nav><span class="eyebrow">${lesson.levelTitle}</span><h1>${topic.title}</h1><div class="lesson-meta"><span>${lesson.title}</span><span>${lesson.difficulty}</span><span>Level ${lesson.level}</span></div></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
+    const chapterNav = lessonChapterNav(lesson, chapters, chapterIndex, topic.id);
+    main.innerHTML = `<section class="page-hero course-topic-hero"><div class="container"><span class="eyebrow">${lesson.title}</span><h1>${topic.title}</h1></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
       <section class="lesson-block lesson-topic-page">${topic.content}</section>
-      <nav class="lesson-nav" aria-label="Topic navigation">${previousTopic ? `<a href="lesson.html?id=${lesson.id}&topic=${previousTopic.id}"><span class="tiny">Previous topic</span><strong style="display:block">${previousTopic.title}</strong></a>` : `<a href="lesson.html?id=${previous.id}"><span class="tiny">Previous lesson</span><strong style="display:block">${previous.title}</strong></a>`}${nextTopic ? `<a href="lesson.html?id=${lesson.id}&topic=${nextTopic.id}"><span class="tiny">Next topic</span><strong style="display:block">${nextTopic.title}</strong></a>` : `<a href="lesson.html?id=${next.id}"><span class="tiny">Next lesson</span><strong style="display:block">${next.title}</strong></a>`}</nav>
-      </article><aside class="lesson-aside"><div class="lesson-sidebar"><nav class="panel lesson-course-nav" aria-label="Lesson topics"><div class="lesson-side-head"><span class="stat-label">On this lesson</span><a href="learn.html">Roadmap</a></div><div class="lesson-side-lessons">${topicNav}</div></nav><div class="panel sticky-progress"><span class="stat-label">Lesson progress</span><div class="progress-ring" style="--progress:${complete ? 360 : 72}deg;margin:18px auto"><strong>${complete ? 100 : 20}%</strong><span>complete</span></div><button class="button ${complete ? "button-secondary" : "button-primary"}" id="complete-lesson" ${complete ? "disabled" : ""}>${complete ? "Lesson completed" : "Mark lesson complete"}</button></div></div></aside></div></section>`;
+      <nav class="lesson-nav" aria-label="Topic navigation">${previousTopic ? `<a href="${courseTopicHref(lesson.id, previousTopic.chapterIndex, previousTopic.topic.id)}"><span class="tiny">Previous topic</span><strong style="display:block">${previousTopic.topic.title}</strong></a>` : `<a href="${courseStartHref(previous.id)}"><span class="tiny">Previous course</span><strong style="display:block">${previous.title}</strong></a>`}${nextTopic ? `<a href="${courseTopicHref(lesson.id, nextTopic.chapterIndex, nextTopic.topic.id)}"><span class="tiny">Next topic</span><strong style="display:block">${nextTopic.topic.title}</strong></a>` : `<a href="${courseStartHref(next.id)}"><span class="tiny">Next course</span><strong style="display:block">${next.title}</strong></a>`}</nav>
+      </article><aside class="lesson-aside"><div class="lesson-sidebar"><nav class="panel lesson-course-nav course-outline" aria-label="${lesson.title} chapters"><h2 class="course-outline-title">${lesson.title}</h2><div class="lesson-chapter-list">${chapterNav}</div></nav></div></aside></div></section>`;
     bindLesson(lesson);
   }
 
@@ -434,6 +518,7 @@
       });
     }
     const button = document.getElementById("complete-lesson");
+    if (!button) return;
     button.addEventListener("click", () => {
       if (!state.completed.includes(lesson.id)) state.completed.push(lesson.id);
       state.lastLesson = lesson.id; saveState(); button.textContent = "Lesson completed"; button.disabled = true; button.classList.remove("button-primary"); button.classList.add("button-secondary"); showToast("Lesson complete. Progress saved locally.");
