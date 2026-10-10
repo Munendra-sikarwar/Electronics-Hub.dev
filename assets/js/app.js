@@ -426,11 +426,11 @@
       {
         title: "Operators & Expressions",
         topics: [
-          { id: "arrays", title: "Arithmetic Operators", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Relational & Equality Operators", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Logical Operators", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Assignment & Increment Operators", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Operator Precedence & Expressions", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
+          { id: "arrays", title: "Arithmetic Operators", label: "Concept", content: `<h2>Arithmetic operators</h2><p>Arithmetic operators calculate numeric values. C provides <code>+</code> for addition, <code>-</code> for subtraction, <code>*</code> for multiplication, and <code>/</code> for division. The remainder operator <code>%</code> gives the remainder after integer division.</p><p>For example, <code>int half = 9 / 2;</code> stores <code>4</code> because integer division discards the fractional part. Use a floating-point value when you need a decimal result.</p>` },
+          { id: "strings", title: "Relational & Equality Operators", label: "Concept", content: `<h2>Relational and equality operators</h2><p>These operators compare two values and produce true (nonzero) or false (zero): <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, and <code>!=</code>.</p><p>For example, <code>if (temperature &gt;= limit)</code> checks whether the temperature has reached a limit. Use <code>==</code> to compare values; a single <code>=</code> assigns a value.</p>` },
+          { id: "logical-operators", title: "Logical Operators", label: "Concept", content: `<h2>Logical operators</h2><p>Logical operators combine or reverse conditions. <code>&amp;&amp;</code> is true when both conditions are true, <code>||</code> is true when either condition is true, and <code>!</code> reverses a condition.</p><p><code>if (buttonPressed &amp;&amp; temperature &lt; limit)</code> runs only when the button is pressed and the temperature is below the limit. C evaluates these operators from left to right with short-circuit behavior.</p>` },
+          { id: "assignment-increment-operators", title: "Assignment & Increment Operators", label: "Concept", content: `<h2>Assignment and increment operators</h2><p>Assignment operators store or update a variable. Along with <code>=</code>, C provides shortcuts such as <code>+=</code>, <code>-=</code>, <code>*=</code>, and <code>/=</code>. For example, <code>count += 1;</code> adds one to <code>count</code>.</p><p><code>++</code> increments a value and <code>--</code> decrements it. Prefix (<code>++count</code>) updates before the expression is used; postfix (<code>count++</code>) uses the old value first.</p>` },
+          { id: "operator-precedence", title: "Operator Precedence & Expressions", label: "Concept", content: `<h2>Operator precedence and expressions</h2><p>Precedence determines which operations are evaluated first. Multiplication and division happen before addition and subtraction, so <code>2 + 3 * 4</code> evaluates to <code>14</code>.</p><p>Use parentheses to make the intended order clear: <code>(2 + 3) * 4</code> evaluates to <code>20</code>. Parentheses make expressions easier to read and help prevent subtle logic errors.</p>` }
         ]
       },
       {
@@ -587,7 +587,30 @@
   }
 
   function courseChapters(lesson) {
-    return courseCurricula[lesson.id] || defaultCourseChapters(lesson);
+    const chapters = courseCurricula[lesson.id] || defaultCourseChapters(lesson);
+    return chapters.map((chapter) => {
+      const idCounts = new Map();
+      chapter.topics.forEach((topic) => {
+        const id = String(topic.id || "");
+        idCounts.set(id, (idCounts.get(id) || 0) + 1);
+      });
+      const reservedIds = new Set([...idCounts].filter(([, count]) => count === 1).map(([id]) => id));
+      const usedIds = new Set();
+      return {
+        ...chapter,
+        topics: chapter.topics.map((topic, topicIndex) => {
+          let id = String(topic.id || "");
+          if (usedIds.has(id)) {
+            const baseId = topic.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `topic-${topicIndex + 1}`;
+            id = baseId;
+            let suffix = 2;
+            while (usedIds.has(id) || reservedIds.has(id)) id = `${baseId}-${suffix++}`;
+          }
+          usedIds.add(id);
+          return id === topic.id ? topic : { ...topic, id };
+        })
+      };
+    });
   }
 
   function courseTopicHref(lessonId, chapterIndex, topicId) {
