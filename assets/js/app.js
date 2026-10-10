@@ -397,11 +397,11 @@
   const courseCurricula = {
     "C-PROGRAMMING": [
       {
-        title: "Variables, Types & Memory",
+        title: "Getting Started with C",
         topics: [
-          { id: "what-is-c", title: "What is C?", label: "Start", content: `<div class="question-callout">How can a small set of instructions control hardware, from a blinking LED to an entire embedded system?</div><p class="lead">C is a fast, widely used programming language that gives you direct control over memory and hardware. That is why it is a core language for embedded systems.</p><p>A C program is a precise list of instructions. You write the instructions, compile them into machine code, and the computer follows them step by step.</p><p>As you learn C, focus on what each line stores, changes, checks, or sends to the hardware.</p>` },
-          { id: "first-program", title: "Your first C program", label: "Build", content: `<h2>Your first C program</h2><p>Every C program starts at <code>main</code>. It is the function the computer runs first.</p><p><code>int main(void) { return 0; }</code></p><p>The braces contain the instructions. A semicolon finishes an instruction. The <code>return 0</code> tells the operating system the program finished successfully.</p><p>Write a small program, compile it, and change one line at a time. That feedback loop is the fastest way to build confidence.</p>` },
-          { id: "compile-run", title: "Compile and run", label: "Workflow", content: `<h2>Compile and run</h2><p>A compiler translates the C source file you write into instructions your computer or microcontroller can execute.</p><p>The usual cycle is simple: write the source file, compile it, read any errors, fix one issue, then run the program again.</p><p>Compiler errors are useful clues. Read the first error first—later errors are often caused by the same earlier mistake.</p>` }
+          { id: "Your-First-C-Program", title: "Your First C Program", label: "Start", content: `<div class="question-callout">How can a small set of instructions control hardware, from a blinking LED to an entire embedded system?</div><p class="lead">C is a fast, widely used programming language that gives you direct control over memory and hardware. That is why it is a core language for embedded systems.</p><p>A C program is a precise list of instructions. You write the instructions, compile them into machine code, and the computer follows them step by step.</p><p>As you learn C, focus on what each line stores, changes, checks, or sends to the hardware.</p>` },
+          { id: "Compile-Build-&-Run", title: "Compile, Build & Run", label: "Build", content: `<h2>Your first C program</h2><p>Every C program starts at <code>main</code>. It is the function the computer runs first.</p><p><code>int main(void) { return 0; }</code></p><p>The braces contain the instructions. A semicolon finishes an instruction. The <code>return 0</code> tells the operating system the program finished successfully.</p><p>Write a small program, compile it, and change one line at a time. That feedback loop is the fastest way to build confidence.</p>` },
+          
         ]
       },
       {
