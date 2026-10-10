@@ -4,8 +4,8 @@
   const data = window.EH_DATA;
   const page = document.body.dataset.page || "home";
   const main = document.getElementById("main-content");
-  const allLessons = data.levels.flatMap((level) => level.lessons.map((lesson) => ({
-    id: lesson[0], title: lesson[1], time: lesson[2], level: level.id, levelTitle: level.title, difficulty: level.difficulty
+  const allLessons = data.levels.flatMap((level) => level.lessons.map((lesson, index) => ({
+    id: lesson[0], title: lesson[1], time: lesson[2], level: level.id, levelTitle: level.title,index: index, difficulty: level.difficulty
   })));
   const storageKey = "electronicsHub.progress.v1";
   const defaultState = { completed: [], lastLesson: "voltage-current-resistance", activityDates: [], quizWins: [], toolsUsed: [] };
@@ -397,7 +397,7 @@
   const courseCurricula = {
     "C-PROGRAMMING": [
       {
-        title: "C Basics",
+        title: "Variables, Types & Memory",
         topics: [
           { id: "what-is-c", title: "What is C?", label: "Start", content: `<div class="question-callout">How can a small set of instructions control hardware, from a blinking LED to an entire embedded system?</div><p class="lead">C is a fast, widely used programming language that gives you direct control over memory and hardware. That is why it is a core language for embedded systems.</p><p>A C program is a precise list of instructions. You write the instructions, compile them into machine code, and the computer follows them step by step.</p><p>As you learn C, focus on what each line stores, changes, checks, or sends to the hardware.</p>` },
           { id: "first-program", title: "Your first C program", label: "Build", content: `<h2>Your first C program</h2><p>Every C program starts at <code>main</code>. It is the function the computer runs first.</p><p><code>int main(void) { return 0; }</code></p><p>The braces contain the instructions. A semicolon finishes an instruction. The <code>return 0</code> tells the operating system the program finished successfully.</p><p>Write a small program, compile it, and change one line at a time. That feedback loop is the fastest way to build confidence.</p>` },
@@ -431,32 +431,36 @@
     ]
   };
 
-  function createCourseTopic(id, title, label, courseTitle, explanation) {
-    return { id, title, label, content: `<div class="question-callout">${explanation}</div><h2>${title}</h2><p class="lead">This topic is part of ${courseTitle}. Focus on the idea first, then connect it to a real circuit, system, or project.</p><p>Work through one small example and describe what changes, what stays constant, and how you would verify the result.</p><p>Keep a short note of the key terms and one question you want to test in practice.</p>` };
-  }
+ function createCourseTopic(id, title, label, courseTitle, explanation) {
+  const content = topicContent[id] || `<div class="question-callout">${explanation}</div><h2>${title}</h2><p>...</p>`;
+  return { id, title, label, content };
+}
 
   function defaultCourseChapters(lesson) {
     const courseTitle = lesson.title;
+    
+    const i = lesson.index % details.length;
+    const info = details[i];
     return [
-      { title: "Foundations", topics: [
-        createCourseTopic("introduction", `Introduction to ${courseTitle}`, "Start", courseTitle, `What problem does ${courseTitle} solve, and where is it used?`),
-        createCourseTopic("core-ideas", "Core ideas", "Concept", courseTitle, `Which basic ideas make ${courseTitle} work?`),
-        createCourseTopic("essential-tools", "Essential tools", "Setup", courseTitle, `What tools, parts, or software do you need before you begin?`)
+      { title:  info.above1, topics: [
+        createCourseTopic("introduction", info.under1[0], "Start", courseTitle, `What problem does ${courseTitle} solve, and where is it used?`),
+        createCourseTopic("core-ideas", info.under1[1], "Concept", courseTitle, `Which basic ideas make ${courseTitle} work?`),
+        createCourseTopic("essential-tools", info.under1[2], "Setup", courseTitle, `What tools, parts, or software do you need before you begin?`)
       ] },
-      { title: "Building Blocks", topics: [
-        createCourseTopic("main-parts", "Main parts", "Concept", courseTitle, `Which parts make up a typical ${courseTitle} system?`),
-        createCourseTopic("how-it-works", "How it works", "Theory", courseTitle, `How do the important parts work together?`),
-        createCourseTopic("common-patterns", "Common patterns", "Practice", courseTitle, `Which recurring patterns help you recognize ${courseTitle} in practice?`)
+      { title:  info.above2, topics: [
+        createCourseTopic("main-parts", info.under2[0], "Concept", courseTitle, `Which parts make up a typical ${courseTitle} system?`),
+        createCourseTopic("how-it-works", info.under2[1], "Theory", courseTitle, `How do the important parts work together?`),
+        createCourseTopic("common-patterns", info.under2[2], "Practice", courseTitle, `Which recurring patterns help you recognize ${courseTitle} in practice?`)
       ] },
-      { title: "Using the Skill", topics: [
-        createCourseTopic("first-example", "Your first example", "Build", courseTitle, `What is the smallest useful example you can build or test?`),
-        createCourseTopic("measure-and-debug", "Measure and debug", "Practice", courseTitle, `How can you check whether your ${courseTitle} work is behaving correctly?`),
-        createCourseTopic("real-world-use", "Real-world use", "Examples", courseTitle, `Where does ${courseTitle} appear in real engineering systems?`)
+      { title:  info.above3, topics: [
+        createCourseTopic("first-example", info.under3[0], "Build", courseTitle, `What is the smallest useful example you can build or test?`),
+        createCourseTopic("measure-and-debug", info.under3[1], "Practice", courseTitle, `How can you check whether your ${courseTitle} work is behaving correctly?`),
+        createCourseTopic("real-world-use", info.under3[2], "Examples", courseTitle, `Where does ${courseTitle} appear in real engineering systems?`)
       ] },
-      { title: "Next Steps", topics: [
-        createCourseTopic("common-mistakes", "Common mistakes", "Troubleshoot", courseTitle, `Which mistakes should you look for first when something does not work?`),
-        createCourseTopic("mini-challenge", "Mini challenge", "Practice", courseTitle, `How can you apply ${courseTitle} in a small, focused challenge?`),
-        createCourseTopic("key-takeaways", "Key takeaways", "Summary", courseTitle, `What are the most useful ideas to carry into the next course?`)
+      { title:  info.above4, topics: [
+        createCourseTopic("common-mistakes", info.under4[0], "Troubleshoot", courseTitle, `Which mistakes should you look for first when something does not work?`),
+        createCourseTopic("mini-challenge", info.under4[1], "Practice", courseTitle, `How can you apply ${courseTitle} in a small, focused challenge?`),
+        createCourseTopic("key-takeaways", info.under4[2], "Summary", courseTitle, `What are the most useful ideas to carry into the next course?`)
       ] }
     ];
   }

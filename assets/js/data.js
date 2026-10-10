@@ -106,3 +106,26 @@ window.EH_DATA = {
     ["Troubleshooting", "Use evidence, hypotheses, and measurements to isolate faults.", "Practice"]
   ]
 };
+const details= [
+  {above1: "STM32",under1:["under1","under2","under3"],
+     above2: "concepts",under2:["under1","under2","under3"],
+      above3:"good",under3:["under1","under2","under3"],
+       above4:"nice",under4:["under1","under2","under3"]
+      },
+  {above1: "fuck me",under1:["under1","under2","under3"],
+     above2: "concepts",under2:["under1","under2","under3"],
+      above3:"good",under3:["under1","under2","under3"],
+       above4:"nice",under4:["under1","under2","under3"]
+
+  },
+  {above1: "ohh no",under1:["under1","under2","under3"],
+     above2: "concepts", under2:["under1","under2","under3"],
+      above3:"good",under3:["under1","under2","under3"],
+       above4:"nice",under4:["under1","under2","under3"],}
+]
+
+const topicContent = {
+  "introduction": `<h2>...</h2><p>your custom paragraph here...</p>`,
+  "core-ideas": `<h2>...</h2><p>...</p>`,
+  // one entry per topic id
+};
