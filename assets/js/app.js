@@ -4,15 +4,23 @@
   const data = window.EH_DATA;
   const page = document.body.dataset.page || "home";
   const main = document.getElementById("main-content");
-  const allLessons = data.levels.flatMap((level) => level.lessons.map((lesson, index) => ({
-    id: lesson[0], title: lesson[1], time: lesson[2], level: level.id, levelTitle: level.title,index: index, difficulty: level.difficulty
+  const normalizeLessonId = (id) => typeof id === "string" ? id.trim() : id;
+  const allLessons = data.levels.flatMap((level) => level.lessons.map((lesson) => ({
+    id: normalizeLessonId(lesson[0]), title: lesson[1], time: lesson[2], level: level.id, levelTitle: level.title, difficulty: level.difficulty
   })));
   const storageKey = "electronicsHub.progress.v1";
   const defaultState = { completed: [], lastLesson: "voltage-current-resistance", activityDates: [], quizWins: [], toolsUsed: [] };
 
   function loadState() {
     try {
-      return { ...defaultState, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+      return {
+        ...defaultState,
+        ...saved,
+        completed: Array.isArray(saved.completed) ? [...new Set(saved.completed.map(normalizeLessonId))] : defaultState.completed,
+        quizWins: Array.isArray(saved.quizWins) ? [...new Set(saved.quizWins.map(normalizeLessonId))] : defaultState.quizWins,
+        lastLesson: normalizeLessonId(saved.lastLesson || defaultState.lastLesson)
+      };
     } catch (_) {
       return { ...defaultState };
     }
@@ -55,7 +63,7 @@
   }
 
   function levelProgress(level) {
-    const completed = level.lessons.filter((lesson) => state.completed.includes(lesson[0])).length;
+    const completed = level.lessons.filter((lesson) => state.completed.includes(normalizeLessonId(lesson[0]))).length;
     return Math.round((completed / level.lessons.length) * 100) || 0;
   }
 
@@ -204,7 +212,7 @@
     const selectedChapter = location.hash.replace("#level-", "");
     const openChapterId = data.levels.some((level) => String(level.id) === selectedChapter) ? Number(selectedChapter) : currentLevel().id;
     main.innerHTML = `<section class="page-hero learning-hero minimal-learning-hero"><div class="container"><h1>Start Learning</h1></div></section>
-      <section class="section-tight learning-chapters minimal-learning"><div class="container"><div class="level-list minimal-level-list">${data.levels.map((level) => `<details class="level-item course-group" id="level-${level.id}" ${level.id === openChapterId ? "open" : ""}><summary class="level-summary"><h2 class="level-title">${level.title}</h2></summary><div class="lesson-list" aria-label="${level.title} topics">${level.lessons.map((lesson) => `<a class="lesson-row ${state.completed.includes(lesson[0]) ? "completed" : ""}" href="${courseStartHref(lesson[0])}"><span class="lesson-title">${lesson[1]}</span></a>`).join("")}</div></details>`).join("")}</div></div></section>`;
+      <section class="section-tight learning-chapters minimal-learning"><div class="container"><div class="level-list minimal-level-list">${data.levels.map((level) => `<details class="level-item course-group" id="level-${level.id}" ${level.id === openChapterId ? "open" : ""}><summary class="level-summary"><h2 class="level-title">${level.title}</h2></summary><div class="lesson-list" aria-label="${level.title} topics">${level.lessons.map((lesson) => `<a class="lesson-row ${state.completed.includes(normalizeLessonId(lesson[0])) ? "completed" : ""}" href="${courseStartHref(lesson[0])}"><span class="lesson-title">${lesson[1]}</span></a>`).join("")}</div></details>`).join("")}</div></div></section>`;
   }
 
   function renderProjects() {
@@ -343,274 +351,105 @@
   }
 
   function lessonById(id) {
-    const known = allLessons.find((lesson) => lesson.id === id);
-    if (known) return known;
-    const title = id.split("-").map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
-    return { id, title, time: "18 min", level: 9, levelTitle: "Engineer's Workshop", difficulty: "Intermediate" };
+    const normalizedId = normalizeLessonId(id);
+    return allLessons.find((lesson) => lesson.id === normalizedId) || null;
   }
 
-  const lessonTopics = [
-    {
-      id: "opening-question",
-      title: "Opening question",
-      label: "Start",
-      content: `<div class="question-callout">How can a small hidden circuit change the way we communicate, travel, study, cook, and stay safe?</div><p class="lead lesson-topic-lead">This topic starts with the big idea: electronics are not only components on a board. They are systems that sense the world, make decisions, and create useful actions.</p><p>A phone wakes when you touch the screen. A washing machine measures water level. A traffic signal changes timing. A medical monitor watches a heartbeat. Each example looks different, but the pattern underneath is similar.</p><p>By the end of this lesson, you should be able to look at everyday technology and ask: What does it sense? What decision does it make? What output does it control?</p>`
-    },
-    {
-      id: "beginner-explanation",
-      title: "The beginner explanation",
-      label: "Concept",
-      content: `<h2>The beginner explanation</h2><p>Most electronic systems can be understood with three simple words: input, processing, and output. An input collects information, processing decides what that information means, and an output makes something happen.</p><p>A temperature sensor is an input. A microcontroller or circuit is the processing part. A fan, display, buzzer, motor, or light is the output.</p><p>This simple model helps you understand technology without getting lost in details. Before worrying about formulas, chips, or code, ask what information enters the system and what action leaves it.</p>`
-    },
-    {
-      id: "relationship",
-      title: "See the relationship",
-      label: "Visual",
-      content: `<h2>See the relationship</h2><p>The basic relationship in everyday electronics is a flow of information and energy: the system senses something, decides what it means, then acts.</p><div class="diagram" role="img" aria-label="Flow from sensing through decision to action"><div class="diagram-grid"></div><div class="diagram-flow"><div class="diagram-node">Sense<br>input</div><div class="diagram-line"></div><div class="diagram-node">Decide<br>logic</div><div class="diagram-line"></div><div class="diagram-node">Act<br>output</div></div></div><p>A smart light senses darkness, decides the room needs light, and turns on an LED. A phone senses touch, decides which command you selected, and updates the display.</p>`
-    },
-    {
-      id: "engineering-explanation",
-      title: "The engineering explanation",
-      label: "Theory",
-      content: `<h2>The engineering explanation</h2><p>Engineers describe electronic products as systems made of sensors, signal conditioning, computation or control logic, actuators, power delivery, and feedback.</p><p>The sensor converts a real-world condition into an electrical signal. The control circuit or processor interprets that signal. The output stage drives a load such as a speaker, motor, display, relay, or LED.</p><p>Good engineering means the system must work reliably under real conditions: low battery, electrical noise, changing temperature, user mistakes, and component tolerances.</p>`
-    },
-    {
-      id: "applications",
-      title: "Where it appears",
-      label: "Examples",
-      content: `<h2>Where it appears</h2><div class="application-grid"><div class="application"><strong>Smartphones</strong><p class="muted">Touch, motion, microphones, cameras, radios, processors, and displays work as one system.</p></div><div class="application"><strong>Home appliances</strong><p class="muted">Sensors and controllers manage temperature, water, timing, speed, and safety.</p></div><div class="application"><strong>Transportation</strong><p class="muted">Vehicles use electronics for sensing, lighting, braking, charging, navigation, and communication.</p></div></div><p>Once you notice the pattern, electronics stops feeling invisible. Everyday devices become understandable systems with inputs, decisions, outputs, and power.</p>`
-    },
-    {
-      id: "quick-check",
-      title: "Quick check",
-      label: "Practice",
-      content: `<h2>Quick check</h2><form class="quiz" id="lesson-quiz"><p><strong>In an automatic night light, what role does the light sensor play?</strong></p><label class="quiz-option"><input type="radio" name="answer" value="correct"> Input</label><label class="quiz-option"><input type="radio" name="answer" value="wrong"> Output</label><label class="quiz-option"><input type="radio" name="answer" value="wrong"> Power source</label><button class="button button-secondary" type="submit">Check answer</button><div class="quiz-feedback" id="quiz-feedback" aria-live="polite"></div></form><p>The sensor provides information about the environment. The circuit uses that information to decide whether the lamp should turn on.</p>`
-    },
-    {
-      id: "key-takeaways",
-      title: "Key takeaways",
-      label: "Summary",
-      content: `<h2>Key takeaways</h2><ul class="takeaway-list"><li>Everyday electronics can be understood as input, processing, and output.</li><li>Sensors turn real-world conditions into electrical information.</li><li>Controllers or circuits decide what should happen next.</li><li>Outputs make the decision visible through light, motion, sound, heat, or data.</li></ul><p>Before moving on, choose one device near you and identify its input, processing, output, and power source.</p>`
-    }
-  ];
+    function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[character]);
+  }
 
-  const courseCurricula = {
-    "C-PROGRAMMING": [
-      {
-        title: "Getting Started with C",
-        topics: [
-          { id: "Your-First-C-Program", title: "Your First C Program", label: "Start", content: `<div class="question-callout">How can a small set of instructions control hardware, from a blinking LED to an entire embedded system?</div><p class="lead">C is a fast, widely used programming language that gives you direct control over memory and hardware. That is why it is a core language for embedded systems.</p><p>A C program is a precise list of instructions. You write the instructions, compile them into machine code, and the computer follows them step by step.</p><p>As you learn C, focus on what each line stores, changes, checks, or sends to the hardware.</p>` },
-          { id: "Compile-Build-&-Run", title: "Compile, Build & Run", label: "Build", content: `<h2>Your first C program</h2><p>Every C program starts at <code>main</code>. It is the function the computer runs first.</p><p><code>int main(void) { return 0; }</code></p><p>The braces contain the instructions. A semicolon finishes an instruction. The <code>return 0</code> tells the operating system the program finished successfully.</p><p>Write a small program, compile it, and change one line at a time. That feedback loop is the fastest way to build confidence.</p>` },
-          
-        ]
-      },
-      {
-        title: "Variables, Types & Memory",
-        topics: [
-          { id: "variables", title: "Variables & Constants", label: "Concept", content: `<div class="question-callout">How does a program remember a sensor reading, a counter value, or whether an LED is on?</div><h2>Variables</h2><p>A variable is a named place in memory that stores a value your program can use and change.</p><p><code>int ledState = 0;</code> creates a variable named <code>ledState</code> and gives it the initial value <code>0</code>. Later, your program can set it to <code>1</code> when the LED should turn on.</p><p>Choose names that explain the value: <code>temperatureC</code> is clearer than <code>x</code>. Good names make programs easier to test and debug.</p>` },
-          { id: "data-types", title: "Data Types in C", label: "Concept", content: `<h2>Data types</h2><p>A data type tells C what kind of value a variable stores and how much memory it needs.</p><div class="application-grid"><div class="application"><strong><code>int</code></strong><p class="muted">Whole numbers, such as a button press count.</p></div><div class="application"><strong><code>float</code></strong><p class="muted">Decimal values, such as a measured voltage.</p></div><div class="application"><strong><code>char</code></strong><p class="muted">A single character, such as a command received over serial communication.</p></div></div><p>Select a type that fits the data and its expected range. This matters especially on microcontrollers with limited memory.</p>` },
-          { id: "operators", title: "Signed vs Unsigned Integers", label: "Practice", content: `<h2>Operators and expressions</h2><p>Operators let you calculate and compare values. C uses <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code> for arithmetic, and comparison operators such as <code>==</code> and <code>&gt;</code> for decisions.</p><p><code>int nextCount = count + 1;</code> is an expression: it reads the current value, adds one, and stores the result.</p><p>Keep expressions readable. Split a complicated calculation into named variables when you need to check it.</p>` },
-          { id: "operators", title: "Integer Size & Range", label: "Practice", content: `<h2>Operators and expressions</h2><p>Operators let you calculate and compare values. C uses <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code> for arithmetic, and comparison operators such as <code>==</code> and <code>&gt;</code> for decisions.</p><p><code>int nextCount = count + 1;</code> is an expression: it reads the current value, adds one, and stores the result.</p><p>Keep expressions readable. Split a complicated calculation into named variables when you need to check it.</p>` },
-          { id: "operators", title: "Fixed-Width Integer Types", label: "Practice", content: `<h2>Operators and expressions</h2><p>Operators let you calculate and compare values. C uses <code>+</code>, <code>-</code>, <code>*</code>, and <code>/</code> for arithmetic, and comparison operators such as <code>==</code> and <code>&gt;</code> for decisions.</p><p><code>int nextCount = count + 1;</code> is an expression: it reads the current value, adds one, and stores the result.</p><p>Keep expressions readable. Split a complicated calculation into named variables when you need to check it.</p>` }
-        ]
-      },
-      {
-        title: "Input, Output & Type Conversion",
-        topics: [
-          { id: "if-else", title: "Type Conversion", label: "Control", content: `<h2>if and else</h2><p>Use <code>if</code> when a program must choose an action based on a condition.</p><p><code>if (temperatureC &gt; 30) { fanOn = 1; } else { fanOn = 0; }</code></p><p>The condition is either true or false. This is how software reacts to a button, threshold, error, or sensor value.</p>` },
-          { id: "loops", title: "Formatted Output with printf()", label: "Control", content: `<h2>Loops</h2><p>Loops repeat instructions. A <code>for</code> loop is useful when you know how many times to repeat, while a <code>while</code> loop continues until a condition changes.</p><p>In embedded work, a main loop often reads inputs, makes a decision, updates outputs, and then repeats.</p><p>Always make sure a loop has a clear stopping condition when it is not intended to run forever.</p>` },
-          { id: "functions", title: "Input with scanf()", label: "Structure", content: `<h2>Functions</h2><p>A function groups one job under a meaningful name. Instead of repeating the same code, define it once and call it whenever you need it.</p><p><code>void turnLedOn(void)</code> describes a function that performs an action and returns no value.</p><p>Small functions make a program easier to read, test, and reuse in future projects.</p>` },
-          { id: "functions", title: "Debugging with Input & Output", label: "Structure", content: `<h2>Functions</h2><p>A function groups one job under a meaningful name. Instead of repeating the same code, define it once and call it whenever you need it.</p><p><code>void turnLedOn(void)</code> describes a function that performs an action and returns no value.</p><p>Small functions make a program easier to read, test, and reuse in future projects.</p>` }
-        ]
-      },
-      {
-        title: "Operators & Expressions",
-        topics: [
-          { id: "arrays", title: "Arithmetic Operators", label: "Concept", content: `<h2>Arithmetic operators</h2><p>Arithmetic operators calculate numeric values. C provides <code>+</code> for addition, <code>-</code> for subtraction, <code>*</code> for multiplication, and <code>/</code> for division. The remainder operator <code>%</code> gives the remainder after integer division.</p><p>For example, <code>int half = 9 / 2;</code> stores <code>4</code> because integer division discards the fractional part. Use a floating-point value when you need a decimal result.</p>` },
-          { id: "strings", title: "Relational & Equality Operators", label: "Concept", content: `<h2>Relational and equality operators</h2><p>These operators compare two values and produce true (nonzero) or false (zero): <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, and <code>!=</code>.</p><p>For example, <code>if (temperature &gt;= limit)</code> checks whether the temperature has reached a limit. Use <code>==</code> to compare values; a single <code>=</code> assigns a value.</p>` },
-          { id: "logical-operators", title: "Logical Operators", label: "Concept", content: `<h2>Logical operators</h2><p>Logical operators combine or reverse conditions. <code>&amp;&amp;</code> is true when both conditions are true, <code>||</code> is true when either condition is true, and <code>!</code> reverses a condition.</p><p><code>if (buttonPressed &amp;&amp; temperature &lt; limit)</code> runs only when the button is pressed and the temperature is below the limit. C evaluates these operators from left to right with short-circuit behavior.</p>` },
-          { id: "assignment-increment-operators", title: "Assignment & Increment Operators", label: "Concept", content: `<h2>Assignment and increment operators</h2><p>Assignment operators store or update a variable. Along with <code>=</code>, C provides shortcuts such as <code>+=</code>, <code>-=</code>, <code>*=</code>, and <code>/=</code>. For example, <code>count += 1;</code> adds one to <code>count</code>.</p><p><code>++</code> increments a value and <code>--</code> decrements it. Prefix (<code>++count</code>) updates before the expression is used; postfix (<code>count++</code>) uses the old value first.</p>` },
-          { id: "operator-precedence", title: "Operator Precedence & Expressions", label: "Concept", content: `<h2>Operator precedence and expressions</h2><p>Precedence determines which operations are evaluated first. Multiplication and division happen before addition and subtraction, so <code>2 + 3 * 4</code> evaluates to <code>14</code>.</p><p>Use parentheses to make the intended order clear: <code>(2 + 3) * 4</code> evaluates to <code>20</code>. Parentheses make expressions easier to read and help prevent subtle logic errors.</p>` }
-        ]
-      },
-      {
-        title: "Decisions & Repetition",
-        topics: [
-          { id: "arrays", title: "if, else if & else", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "switch Statements", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "for, while & do-while Loops", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "break, continue & Nested Loops", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-          
-        ]
-      },
-      {
-        title: "Functions & Program Organization",
-        topics: [
-          { id: "arrays", title: "Functions: Declaration, Definition & Calling", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Parameters, Arguments & Return Values", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Local Variables, Scope & Lifetime", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Passing Values to Functions", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Function Prototypes & Modular Code", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Arrays & Data Handling",
-        topics: [
-          { id: "arrays", title: "Arrays: Declaration & Initialization", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Accessing Elements & Array Indexing", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Traversing Arrays with Loops", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Multidimensional Arrays", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Character Arrays & Basic Strings", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Arrays in Sensor Data Collection", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Pointers & Memory Addresses",
-        topics: [
-          { id: "arrays", title: "Memory Addresses & the Address-of Operator", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Pointer Declaration & Initialization", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Dereferencing Pointers", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Pointers and Functions", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Pointers and Arrays", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Pointers and Functions", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Pointers and Arrays", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "NULL Pointers & Common Pointer Errors", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Pointers in Embedded Programming", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Structures & User-Defined Types",
-        topics: [
-          { id: "arrays", title: "Structures (struct)", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Accessing Structure Members", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Arrays of Structures", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Enumerations (enum)", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Unions (union)", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Enumerations (enum)", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "typedef and Custom Type Names", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Scope, Storage & Memory Qualifiers",
-        topics: [
-          { id: "arrays", title: "Local & Global Variables", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Storage Classes: static and extern", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "const and Read-Only Data", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "volatile in Embedded C", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Variable Lifetime & Linkage", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "volatile in Embedded C", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Stack, Static Storage & Memory Layout", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Preprocessor & Header Files",
-        topics: [
-          { id: "arrays", title: "#include and Header Files", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Macros with #define", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Conditional Compilation", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Header Guards", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Splitting a Program into .c and .h Files", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Bit Manipulation & Binary Operations",
-        topics: [
-          { id: "arrays", title: "Binary, Hexadecimal & Bit Positions", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Bitwise Operators: &, |, ^, ~", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Left & Right Shift Operators", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Setting, Clearing & Toggling Bits", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Masks and Bit Fields", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Reading & Modifying Register Bits", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Common Bit Manipulation Errors", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Embedded C Fundamentals",
-        topics: [
-          { id: "arrays", title: "What Makes Embedded C Different?", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Memory-Mapped Hardware Registers", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "GPIO Registers & Pin Control", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Polling vs Interrupts", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Hardware Timers & Counters", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "UART, SPI & I²C Data Handling", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Fixed-Width Types and Register Access", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Hardware, Compiler & Portability Considerations", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      },
-      {
-        title: "Practical C for Embedded Systems",
-        topics: [
-          { id: "arrays", title: "Building a Sensor Data Processor", label: "Data", content: `<h2>Arrays</h2><p>An array stores several values of the same type in order. For example, <code>int readings[5]</code> can hold five sensor readings.</p><p>Array positions start at zero, so the first item is <code>readings[0]</code>. Be careful not to read or write beyond the final position.</p>` },
-          { id: "strings", title: "Implementing a Software Counter & Timer", label: "Data", content: `<h2>Strings</h2><p>In C, a string is an array of characters that ends with a special null character.</p><p>Strings are used for labels, serial messages, and simple command text. Give them enough space for every character plus the ending null character.</p>` },
-          { id: "pointers", title: "Building a Circular Buffer", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Reading and Updating Register Fields", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Writing Interrupt-Friendly Code", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Debugging Common Embedded C Errors", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` },
-          { id: "pointers", title: "Mini Project: Sensor Data Acquisition", label: "Advanced", content: `<h2>Pointers</h2><p>A pointer stores the memory address of another value. Pointers allow functions to work with original data and let embedded programs access hardware registers efficiently.</p><p>Start by treating a pointer as an address. Use it only after you can clearly explain which value it points to and whether that memory is valid.</p>` }
-        ]
-      }
-    ]
-  };
+  function topicSlug(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "topic";
+  }
 
- function createCourseTopic(id, title, label, courseTitle, explanation) {
-  const content = topicContent[id] || `<div class="question-callout">${explanation}</div><h2>${title}</h2><p>...</p>`;
-  return { id, title, label, content };
-}
+  function createCourseTopic(topic) {
+    const id = topic.id;
+    const title = topic.title;
+    const label = topic.label;
+    const authoredContent = topicContent && topicContent[id];
+    const content = typeof authoredContent === "string" && authoredContent.trim()
+      ? authoredContent
+      : '<div class="empty-state"><strong>Lesson content is not available yet.</strong><p>' + escapeHtml(title) + ' is listed in the curriculum and its lesson will be added here.</p></div>';
+    return {
+      id,
+      title,
+      label,
+      content,
+      legacyIds: Array.isArray(topic.legacyIds) ? topic.legacyIds.filter((legacyId) => typeof legacyId === "string") : []
+    };
+  }
 
   function defaultCourseChapters(lesson) {
-    const courseTitle = lesson.title;
-    
-    const i = lesson.index % details.length;
-    const info = details[i];
-    return [
-      { title:  info.above1, topics: [
-        createCourseTopic("introduction", info.under1[0], "Start", courseTitle, `What problem does ${courseTitle} solve, and where is it used?`),
-        createCourseTopic("core-ideas", info.under1[1], "Concept", courseTitle, `Which basic ideas make ${courseTitle} work?`),
-        createCourseTopic("essential-tools", info.under1[2], "Setup", courseTitle, `What tools, parts, or software do you need before you begin?`)
-      ] },
-      { title:  info.above2, topics: [
-        createCourseTopic("main-parts", info.under2[0], "Concept", courseTitle, `Which parts make up a typical ${courseTitle} system?`),
-        createCourseTopic("how-it-works", info.under2[1], "Theory", courseTitle, `How do the important parts work together?`),
-        createCourseTopic("common-patterns", info.under2[2], "Practice", courseTitle, `Which recurring patterns help you recognize ${courseTitle} in practice?`)
-      ] },
-      { title:  info.above3, topics: [
-        createCourseTopic("first-example", info.under3[0], "Build", courseTitle, `What is the smallest useful example you can build or test?`),
-        createCourseTopic("measure-and-debug", info.under3[1], "Practice", courseTitle, `How can you check whether your ${courseTitle} work is behaving correctly?`),
-        createCourseTopic("real-world-use", info.under3[2], "Examples", courseTitle, `Where does ${courseTitle} appear in real engineering systems?`)
-      ] },
-      { title:  info.above4, topics: [
-        createCourseTopic("common-mistakes", info.under4[0], "Troubleshoot", courseTitle, `Which mistakes should you look for first when something does not work?`),
-        createCourseTopic("mini-challenge", info.under4[1], "Practice", courseTitle, `How can you apply ${courseTitle} in a small, focused challenge?`),
-        createCourseTopic("key-takeaways", info.under4[2], "Summary", courseTitle, `What are the most useful ideas to carry into the next course?`)
-      ] }
-    ];
+    const unavailable = () => [{
+      id: "course-outline",
+      title: "Course outline",
+      topics: [createCourseTopic({
+        id: "curriculum-" + topicSlug(lesson.id),
+        title: "Curriculum is being prepared",
+        label: "Coming soon"
+      })]
+    }];
+
+    if (!lesson || typeof lesson.id !== "string") return [];
+    const curriculum = Array.isArray(details) ? details.find((entry) => entry && entry.courseId === lesson.id) : null;
+    if (!curriculum || !Array.isArray(curriculum.chapters) || !curriculum.chapters.length) return unavailable();
+
+    const seenTopicIds = new Set();
+    const chapters = [];
+    curriculum.chapters.forEach((chapter, chapterIndex) => {
+      if (!chapter || typeof chapter.title !== "string" || !chapter.title.trim() || !Array.isArray(chapter.topics)) {
+        console.warn("Skipping an invalid chapter in the " + lesson.id + " curriculum.");
+        return;
+      }
+      const topics = [];
+      chapter.topics.forEach((topic) => {
+        if (!topic || typeof topic !== "object") {
+          console.warn("Skipping an invalid topic in the " + lesson.id + " curriculum.");
+          return;
+        }
+        const title = typeof topic.title === "string" ? topic.title.trim() : "";
+        if (!title) return;
+        const chapterKey = typeof chapter.id === "string" && chapter.id.trim()
+          ? chapter.id.trim()
+          : topicSlug(chapter.title);
+        const baseId = typeof topic.id === "string" && topic.id.trim()
+          ? topic.id.trim()
+          : topicSlug(lesson.id) + "-" + chapterKey + "-" + topicSlug(title);
+        let id = baseId;
+        if (seenTopicIds.has(id)) {
+          id = topicSlug(lesson.id) + "-" + chapterKey + "-" + topicSlug(title);
+          let suffix = 2;
+          while (seenTopicIds.has(id)) id = topicSlug(lesson.id) + "-" + chapterKey + "-" + topicSlug(title) + "-" + suffix++;
+          console.warn("A duplicate topic ID was repaired in the " + lesson.id + " curriculum.");
+        }
+        seenTopicIds.add(id);
+        topics.push(createCourseTopic({
+          ...topic,
+          id,
+          title,
+          label: typeof topic.label === "string" && topic.label.trim() ? topic.label.trim() : "Topic"
+        }));
+      });
+      if (topics.length) {
+        chapters.push({
+          id: typeof chapter.id === "string" && chapter.id.trim() ? chapter.id.trim() : "chapter-" + (chapterIndex + 1),
+          title: chapter.title.trim(),
+          topics
+        });
+      }
+    });
+    return chapters.length ? chapters : unavailable();
   }
 
   function courseChapters(lesson) {
-    const chapters = courseCurricula[lesson.id] || defaultCourseChapters(lesson);
-    return chapters.map((chapter) => {
-      const idCounts = new Map();
-      chapter.topics.forEach((topic) => {
-        const id = String(topic.id || "");
-        idCounts.set(id, (idCounts.get(id) || 0) + 1);
-      });
-      const reservedIds = new Set([...idCounts].filter(([, count]) => count === 1).map(([id]) => id));
-      const usedIds = new Set();
-      return {
-        ...chapter,
-        topics: chapter.topics.map((topic, topicIndex) => {
-          let id = String(topic.id || "");
-          if (usedIds.has(id)) {
-            const baseId = topic.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `topic-${topicIndex + 1}`;
-            id = baseId;
-            let suffix = 2;
-            while (usedIds.has(id) || reservedIds.has(id)) id = `${baseId}-${suffix++}`;
-          }
-          usedIds.add(id);
-          return id === topic.id ? topic : { ...topic, id };
-        })
-      };
-    });
+    return defaultCourseChapters(lesson);
   }
 
   function courseTopicHref(lessonId, chapterIndex, topicId) {
@@ -619,18 +458,23 @@
 
   function courseStartHref(lessonId) {
     const courseLesson = lessonById(lessonId);
+    if (!courseLesson) return "lesson.html";
     const firstTopic = courseChapters(courseLesson)[0].topics[0];
     return courseTopicHref(courseLesson.id, 0, firstTopic.id);
   }
 
   function lessonChapterNav(lesson, chapters, currentChapterIndex, currentTopicId) {
-    return chapters.map((chapter, chapterIndex) => `<details class="lesson-chapter" ${chapterIndex === currentChapterIndex ? "open" : ""}><summary class="lesson-chapter-summary"><strong>${chapter.title}</strong></summary><div class="lesson-chapter-topics">${chapter.topics.map((topic) => `<a class="lesson-side-link ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? "active" : ""}" href="${courseTopicHref(lesson.id, chapterIndex, topic.id)}" ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? 'aria-current="page"' : ""}><span>${topic.title}</span></a>`).join("")}</div></details>`).join("");
+    return chapters.map((chapter, chapterIndex) => `<details class="lesson-chapter" ${chapterIndex === currentChapterIndex ? "open" : ""}><summary class="lesson-chapter-summary"><strong>${escapeHtml(chapter.title)}</strong></summary><div class="lesson-chapter-topics">${chapter.topics.map((topic) => `<a class="lesson-side-link ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? "active" : ""}" href="${courseTopicHref(lesson.id, chapterIndex, topic.id)}" ${chapterIndex === currentChapterIndex && topic.id === currentTopicId ? 'aria-current="page"' : ""}><span>${escapeHtml(topic.title)}</span></a>`).join("")}</div></details>`).join("");
   }
 
   function renderLesson() {
     const params = new URLSearchParams(location.search);
     const id = params.get("id") || "voltage-current-resistance";
     const lesson = lessonById(id);
+    if (!lesson) {
+      renderNotFound();
+      return;
+    }
     state.lastLesson = lesson.id; saveState();
     const index = allLessons.findIndex((item) => item.id === lesson.id);
     const previous = allLessons[index > 0 ? index - 1 : 0];
@@ -640,7 +484,8 @@
     const chapterIndex = Number.isInteger(requestedChapter) && chapters[requestedChapter] ? requestedChapter : 0;
     const chapter = chapters[chapterIndex];
     const requestedTopic = params.get("topic") || chapter.topics[0].id;
-    const topicIndex = Math.max(0, chapter.topics.findIndex((topic) => topic.id === requestedTopic));
+    const matchedTopicIndex = chapter.topics.findIndex((topic) => topic.id === requestedTopic || topic.legacyIds.includes(requestedTopic));
+    const topicIndex = matchedTopicIndex >= 0 ? matchedTopicIndex : 0;
     const topic = chapter.topics[topicIndex];
     const courseTopics = chapters.flatMap((courseChapter, courseChapterIndex) => courseChapter.topics.map((courseTopic, courseTopicIndex) => ({ chapterIndex: courseChapterIndex, topicIndex: courseTopicIndex, chapter: courseChapter, topic: courseTopic })));
     const courseTopicIndex = courseTopics.findIndex((courseTopic) => courseTopic.chapterIndex === chapterIndex && courseTopic.topicIndex === topicIndex);
@@ -648,10 +493,10 @@
     const nextTopic = courseTopics[courseTopicIndex + 1];
     document.title = `${topic.title} | ${lesson.title} | Electronics Hub`;
     const chapterNav = lessonChapterNav(lesson, chapters, chapterIndex, topic.id);
-    main.innerHTML = `<section class="page-hero course-topic-hero"><div class="container"><span class="eyebrow">${lesson.title}</span><h1>${topic.title}</h1></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
+    main.innerHTML = `<section class="page-hero course-topic-hero"><div class="container"><span class="eyebrow">${escapeHtml(lesson.title)}</span><h1>${escapeHtml(topic.title)}</h1></div></section><section class="section-tight"><div class="container lesson-shell"><article class="lesson-content">
       <section class="lesson-block lesson-topic-page">${topic.content}</section>
-      <nav class="lesson-nav" aria-label="Topic navigation">${previousTopic ? `<a href="${courseTopicHref(lesson.id, previousTopic.chapterIndex, previousTopic.topic.id)}"><span class="tiny">Previous topic</span><strong style="display:block">${previousTopic.topic.title}</strong></a>` : `<a href="${courseStartHref(previous.id)}"><span class="tiny">Previous course</span><strong style="display:block">${previous.title}</strong></a>`}${nextTopic ? `<a href="${courseTopicHref(lesson.id, nextTopic.chapterIndex, nextTopic.topic.id)}"><span class="tiny">Next topic</span><strong style="display:block">${nextTopic.topic.title}</strong></a>` : `<a href="${courseStartHref(next.id)}"><span class="tiny">Next course</span><strong style="display:block">${next.title}</strong></a>`}</nav>
-      </article><aside class="lesson-aside"><div class="lesson-sidebar"><nav class="panel lesson-course-nav course-outline" aria-label="${lesson.title} chapters"><h2 class="course-outline-title">${lesson.title}</h2><div class="lesson-chapter-list">${chapterNav}</div></nav></div></aside></div></section>`;
+      <nav class="lesson-nav" aria-label="Topic navigation">${previousTopic ? `<a href="${courseTopicHref(lesson.id, previousTopic.chapterIndex, previousTopic.topic.id)}"><span class="tiny">Previous topic</span><strong style="display:block">${escapeHtml(previousTopic.topic.title)}</strong></a>` : `<a href="${courseStartHref(previous.id)}"><span class="tiny">Previous course</span><strong style="display:block">${escapeHtml(previous.title)}</strong></a>`}${nextTopic ? `<a href="${courseTopicHref(lesson.id, nextTopic.chapterIndex, nextTopic.topic.id)}"><span class="tiny">Next topic</span><strong style="display:block">${escapeHtml(nextTopic.topic.title)}</strong></a>` : `<a href="${courseStartHref(next.id)}"><span class="tiny">Next course</span><strong style="display:block">${escapeHtml(next.title)}</strong></a>`}</nav>
+      </article><aside class="lesson-aside"><div class="lesson-sidebar"><nav class="panel lesson-course-nav course-outline" aria-label="${escapeHtml(lesson.title)} chapters"><h2 class="course-outline-title">${escapeHtml(lesson.title)}</h2><div class="lesson-chapter-list">${chapterNav}</div></nav></div></aside></div></section>`;
     bindLesson(lesson);
   }
 
